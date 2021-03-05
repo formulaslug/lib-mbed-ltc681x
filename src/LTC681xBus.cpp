@@ -90,7 +90,7 @@ void LTC681xBus::getDataBytes(uint8_t* buf, uint8_t data[6]) {
   for(size_t i = 0; i < 6; i++) {
     buf[i] = data[i];
   }
-  uint8_t dataPec = LTC681xBus::calculatePec(6, buf);
+  uint16_t dataPec = LTC681xBus::calculatePec(6, buf);
   buf[6] = dataPec >> 8;
   buf[7] = dataPec;
 }
