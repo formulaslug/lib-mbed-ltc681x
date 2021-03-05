@@ -3,6 +3,32 @@
 #include <cstdint>
 #include <cstddef>
 
+#include "LTC681xCommand.h"
+
+LTC681xBus::BusCommand LTC681xBus::BuildAddressedBusCommand(const LTC681xCommand& command, LTC681xBus::CommandAddress address) {
+  return BusCommand {{
+    .command = command.toValue(),
+    .address = address,
+    .mode = AddressingMode::kAddress
+  }};
+}
+
+LTC681xBus::BusCommand LTC681xBus::BuildBroadcastBusCommand(const LTC681xCommand& command) {
+  return BusCommand {{
+    .command = command.toValue(),
+    .address = 0x00,
+    .mode = AddressingMode::kBroadcast
+  }};
+}
+
+LTC681xBus::BusCommand LTC681xBus::BuildChainBusCommand(const LTC681xCommand& command) {
+  return BusCommand {{
+    .command = command.toValue(),
+    .address = 0x00,
+    .mode = AddressingMode::kChain
+  }};
+}
+
 static constexpr uint16_t crc15Table[256] {
   0x0000, 0xc599, 0xceab, 0x0b32, 0xd8cf, 0x1d56, 0x1664, 0xd3fd,
   0xf407, 0x319e, 0x3aac, 0xff35, 0x2cc8, 0xe951, 0xe263, 0x27fa,
@@ -51,8 +77,8 @@ uint16_t LTC681xBus::calculatePec(uint8_t length, uint8_t *data) {
   return (remainder << 1);
 }
 
-void LTC681xBus::getCommandBytes(uint8_t* buf, LTC681xBusCommand cmd) {
-  uint16_t cmdCode = cmd.toValue();
+void LTC681xBus::getCommandBytes(uint8_t* buf, LTC681xBus::BusCommand cmd) {
+  uint16_t cmdCode = cmd.value;
   buf[0] = cmdCode >> 8;
   buf[1] = cmdCode;
   uint16_t cmdPec = LTC681xBus::calculatePec(2, buf);

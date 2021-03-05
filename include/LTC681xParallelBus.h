@@ -12,9 +12,9 @@ public:
 
   LTC681xBusStatus WakeupBus();
 
-  LTC681xBusStatus SendCommand(LTC681xBusCommand cmd);
-  LTC681xBusStatus SendDataCommand(LTC681xBusCommand cmd, uint8_t* data);
-  LTC681xBusStatus SendReadCommand(LTC681xBusCommand cmd, uint8_t* data);
+  LTC681xBusStatus SendCommand(BusCommand cmd);
+  LTC681xBusStatus SendDataCommand(BusCommand cmd, uint8_t* data);
+  LTC681xBusStatus SendReadCommand(BusCommand cmd, uint8_t* data);
 private:
   SPI* m_spiDriver;
 };

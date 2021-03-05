@@ -11,7 +11,7 @@ LTC681xBus::LTC681xBusStatus LTC681xParallelBus::WakeupBus() {
   return LTC681xBus::LTC681xBusStatus::Ok;
 }
 
-LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendCommand(LTC681xBusCommand cmd) {
+LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendCommand(LTC681xBus::BusCommand cmd) {
   uint8_t cmdBytes[4];
   LTC681xBus::getCommandBytes(cmdBytes, cmd);
 
@@ -23,7 +23,7 @@ LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendCommand(LTC681xBusCommand c
   return LTC681xBus::LTC681xBusStatus::Ok;
 }
 
-LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendDataCommand(LTC681xBusCommand cmd, uint8_t* data) {
+LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendDataCommand(LTC681xBus::BusCommand cmd, uint8_t* data) {
   // Create command value array
   uint8_t cmdBytes[4];
   LTC681xBus::getCommandBytes(cmdBytes, cmd);
@@ -41,7 +41,7 @@ LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendDataCommand(LTC681xBusComma
   return LTC681xBus::LTC681xBusStatus::Ok;
 }
 
-LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendReadCommand(LTC681xBusCommand cmd, uint8_t* data) {
+LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendReadCommand(LTC681xBus::BusCommand cmd, uint8_t* data) {
   // Create command value array
   uint8_t cmdBytes[4];
   LTC681xBus::getCommandBytes(cmdBytes, cmd);

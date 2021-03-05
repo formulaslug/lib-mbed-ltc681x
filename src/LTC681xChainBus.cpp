@@ -18,14 +18,14 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::WakeupBus() {
 }
 
 template<const unsigned int N_chips>
-LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommand(LTC681xBusCommand cmd) {
+LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommand(LTC681xBus::BusCommand cmd) {
   //
   // In daisy chain mode, to send a command we broadcast
   // a single command to all devices.
   //
 
   // Be sure we are trying to send a chain command
-  MBED_ASSERT(cmd.mode == LTC681xBusCommand::AddressingMode::kChain);
+  MBED_ASSERT(cmd.mode == AddressingMode::kChain);
 
   uint8_t cmdBytes[4];
   LTC681xBus::getCommandBytes(cmdBytes, cmd);
@@ -39,7 +39,7 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommand(LTC681xBusCom
 }
 
 template<const unsigned int N_chips>
-LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendDataCommand(LTC681xBusCommand cmd, uint8_t* data) {
+LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendDataCommand(LTC681xBus::BusCommand cmd, uint8_t* data) {
   //
   // In daisy chain mode, to send a command with data, we first
   // broadcast the command code once to all devices, then send
@@ -47,7 +47,7 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendDataCommand(LTC681xBu
   //
 
   // Be sure we are trying to send a chain command
-  MBED_ASSERT(cmd.mode == LTC681xBusCommand::AddressingMode::kChain);
+  MBED_ASSERT(cmd.mode == AddressingMode::kChain);
 
   // Create command value array
   uint8_t cmdBytes[4];
@@ -69,14 +69,14 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendDataCommand(LTC681xBu
 }
 
 template<const unsigned int N_chips>
-LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendReadCommand(LTC681xBusCommand cmd, uint8_t* data) {
+LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendReadCommand(LTC681xBus::BusCommand cmd, uint8_t* data) {
   //
   // In daisy chain mode, to send a read command, we first send the
   // command code, then read in 8 bytes from each chip in the chain.
   //
 
   // Be sure we are trying to send a chain command
-  MBED_ASSERT(cmd.mode == LTC681xBusCommand::AddressingMode::kChain);
+  MBED_ASSERT(cmd.mode == AddressingMode::kChain);
 
   // Create command value array
   uint8_t cmdBytes[4];
