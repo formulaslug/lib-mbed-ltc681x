@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 
+#include "LTC681xBus.h"
 #include "mbed.h"
 
 template<const unsigned int N_chips>
@@ -109,4 +110,96 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendReadCommand(LTC681xBu
   }
 
   return LTC681xBus::LTC681xBusStatus::Ok;
+}
+
+template <const unsigned int N_chips>
+LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommandAndPoll(BusCommand cmd, unsigned int timeout) {
+  //
+  // In daisy chain mode, to send a command we broadcast
+  // a single command to all devices.
+  //
+
+  // Be sure we are trying to send a chain command
+  MBED_ASSERT(cmd.mode == AddressingMode::kChain);
+
+  uint8_t cmdBytes[4];
+  LTC681xBus::getCommandBytes(cmdBytes, cmd);
+
+  // Grab the bus and send our command
+  m_spiDriver->select();
+  m_spiDriver->write((const char*)cmdBytes, sizeof(cmdBytes), NULL, 0);
+
+  // Poll for ADC completion
+
+  // Send initial N isoSPI clock pulses
+  for(unsigned int i = 0; i < N_chips / 8; i++) {
+    m_spiDriver->write(0xff);
+  }
+
+  // Send clock pulses until devices are not busy (non-zero value)
+  bool gotResponse = false;
+  for(unsigned int cycle = 0; cycle < (timeout * 1000 / LTC681x_POLL_DELAY); cycle++) {
+    uint8_t readVal;
+    m_spiDriver->write(NULL, 0, (char*) &readVal, 1);
+    if(readVal != 0) {
+      gotResponse = true;
+      break;
+    } else {
+      wait_us(LTC681x_POLL_DELAY);
+    }
+  }
+  m_spiDriver->deselect();
+
+  if(gotResponse) {
+    return LTC681xBus::LTC681xBusStatus::Ok;
+  } else {
+    return LTC681xBus::LTC681xBusStatus::PollTimeout;
+  }
+}
+
+template<const unsigned int N_chips>
+LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::PollAdcCompletion(BusCommand cmd, unsigned int timeout) {
+  //
+  // In daisy chain mode, to send a command we broadcast
+  // a single command to all devices.
+  //
+
+  // Be sure we are trying to send a chain command
+  MBED_ASSERT(cmd.mode == AddressingMode::kChain);
+  // Be sure we are sending a PLADC command
+  MBED_ASSERT(cmd.command == 0x0714);
+
+  uint8_t cmdBytes[4];
+  LTC681xBus::getCommandBytes(cmdBytes, cmd);
+
+  // Grab the bus and send our command
+  m_spiDriver->select();
+  m_spiDriver->write((const char*)cmdBytes, sizeof(cmdBytes), NULL, 0);
+
+  // Poll for ADC completion
+
+  // Send initial N isoSPI clock pulses
+  for(unsigned int i = 0; i < N_chips / 8; i++) {
+    m_spiDriver->write(0xff);
+  }
+
+  // Send clock pulses until devices are not busy (non-zero value)
+  bool gotResponse = false;
+  for(unsigned int cycle = 0; cycle < (timeout * 1000 / LTC681x_POLL_DELAY); cycle++) {
+    uint8_t readVal;
+    m_spiDriver->write(NULL, 0, (char*) &readVal, 1);
+    if(readVal != 0) {
+      gotResponse = true;
+      break;
+    } else {
+      wait_us(LTC681x_POLL_DELAY);
+    }
+  }
+  m_spiDriver->deselect();
+
+  if(gotResponse) {
+    return LTC681xBus::LTC681xBusStatus::Ok;
+  } else {
+    return LTC681xBus::LTC681xBusStatus::PollTimeout;
+  }
 }

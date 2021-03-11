@@ -15,6 +15,9 @@ public:
   LTC681xBusStatus SendCommand(BusCommand cmd);
   LTC681xBusStatus SendDataCommand(BusCommand cmd, uint8_t* data);
   LTC681xBusStatus SendReadCommand(BusCommand cmd, uint8_t* data);
+
+  LTC681xBusStatus SendCommandAndPoll(BusCommand cmd, unsigned int timeout = 10);
+  LTC681xBusStatus PollAdcCompletion(BusCommand cmd, unsigned int timeout = 10);
 private:
   SPI* m_spiDriver;
 };

@@ -4,7 +4,9 @@
 
 #include "LTC681xCommand.h"
 
+// Delays in us
 #define LTC681x_WAKEUP_DELAY 420
+#define LTC681x_POLL_DELAY 10
 
 class LTC681xBus {
 public:
@@ -32,7 +34,8 @@ public:
 
   enum class LTC681xBusStatus : uint8_t {
     Ok,
-    BadPec
+    BadPec,
+    PollTimeout
   };
 
   virtual LTC681xBusStatus WakeupBus() = 0;
@@ -40,6 +43,9 @@ public:
   virtual LTC681xBusStatus SendCommand(BusCommand cmd) = 0;
   virtual LTC681xBusStatus SendDataCommand(BusCommand cmd, uint8_t* data) = 0;
   virtual LTC681xBusStatus SendReadCommand(BusCommand cmd, uint8_t* data) = 0;
+
+  virtual LTC681xBusStatus SendCommandAndPoll(BusCommand cmd, unsigned int timeout = 10) = 0;
+  virtual LTC681xBusStatus PollAdcCompletion(BusCommand cmd, unsigned int timeout = 10) = 0;
 
 protected:
   static uint16_t calculatePec(uint8_t length, uint8_t *data);

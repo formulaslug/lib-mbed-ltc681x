@@ -69,3 +69,69 @@ LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendReadCommand(LTC681xBus::Bus
 
   return LTC681xBus::LTC681xBusStatus::Ok;
 }
+
+LTC681xBus::LTC681xBusStatus LTC681xParallelBus::SendCommandAndPoll(LTC681xBus::BusCommand cmd, unsigned int timeout) {
+  // Be sure we are trying to send a chain command
+  MBED_ASSERT(cmd.mode == AddressingMode::kAddress);
+
+  uint8_t cmdBytes[4];
+  LTC681xBus::getCommandBytes(cmdBytes, cmd);
+
+  // Grab the bus and send our command
+  m_spiDriver->select();
+  m_spiDriver->write((const char*)cmdBytes, sizeof(cmdBytes), NULL, 0);
+
+  // Send clock pulses until devices are not busy (non-zero value)
+  bool gotResponse = false;
+  for(unsigned int cycle = 0; cycle < (timeout * 1000 / LTC681x_POLL_DELAY); cycle++) {
+    uint8_t readVal;
+    m_spiDriver->write(NULL, 0, (char*) &readVal, 1);
+    if(readVal != 0) {
+      gotResponse = true;
+      break;
+    } else {
+      wait_us(LTC681x_POLL_DELAY);
+    }
+  }
+  m_spiDriver->deselect();
+
+  if(gotResponse) {
+    return LTC681xBus::LTC681xBusStatus::Ok;
+  } else {
+    return LTC681xBus::LTC681xBusStatus::PollTimeout;
+  }
+}
+
+LTC681xBus::LTC681xBusStatus LTC681xParallelBus::PollAdcCompletion(LTC681xBus::BusCommand cmd, unsigned int timeout) {
+  // Be sure we are trying to send a chain command
+  MBED_ASSERT(cmd.mode == AddressingMode::kAddress);
+  // Be sure we are sending a PLADC command
+  MBED_ASSERT(cmd.command == 0x0714);
+
+  uint8_t cmdBytes[4];
+  LTC681xBus::getCommandBytes(cmdBytes, cmd);
+
+  // Grab the bus and send our command
+  m_spiDriver->select();
+  m_spiDriver->write((const char*)cmdBytes, sizeof(cmdBytes), NULL, 0);
+
+  // Send clock pulses until devices are not busy (non-zero value)
+  bool gotResponse = false;
+  for(unsigned int cycle = 0; cycle < (timeout * 1000 / LTC681x_POLL_DELAY); cycle++) {
+    uint8_t readVal;
+    m_spiDriver->write(NULL, 0, (char*) &readVal, 1);
+    if(readVal != 0) {
+      gotResponse = true;
+      break;
+    } else {
+      wait_us(LTC681x_POLL_DELAY);
+    }
+  }  
+  m_spiDriver->deselect();
+
+  if(gotResponse) {
+    return LTC681xBus::LTC681xBusStatus::Ok;
+  } else {
+    return LTC681xBus::LTC681xBusStatus::PollTimeout;
+  }
+}
