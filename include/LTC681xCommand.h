@@ -41,6 +41,13 @@ enum class GpioSelection : uint8_t {
   k5 = 5,
   kRef = 6
 };
+enum class StatusGroupSelection : uint8_t {
+  kAll = 0,
+  kSC = 1,
+  kITMP = 2,
+  kVA = 3,
+  kVD = 4
+};
 
 class WriteConfigurationGroupA : public LTC681xCommand {
   uint16_t toValue() const { return 0x0001; }
@@ -178,6 +185,8 @@ using ADCV = StartCellVoltageADC;
 
 class StartOpenWireADC : public LTC681xCommand {
  public:
+  StartOpenWireADC(AdcMode a, PullDirection p, bool d, CellSelection c)
+    : adcMode(a), pull(p), dischargePermitted(d), cellSelection(c) {}
   AdcMode adcMode;
   PullDirection pull;
   bool dischargePermitted;
@@ -202,6 +211,7 @@ using CVST = StartSelfTestCellVoltage;
 
 class StartOverlapCellVoltage : public LTC681xCommand {
  public:
+  StartOverlapCellVoltage(AdcMode a, bool d) : adcMode(a), dischargePermitted(d) {}
   AdcMode adcMode;
   bool dischargePermitted;
   uint16_t toValue() const {
@@ -234,50 +244,51 @@ using ADAXD = StartGpioADCWithRedundancy;
 
 class StartSelfTestGpio : public LTC681xCommand {
  public:
-  StartSelfTestGpio(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  StartSelfTestGpio(AdcMode a, SelfTestMode t) : adcMode(a), testMode(t) {}
   AdcMode adcMode;
-  GpioSelection gpioSelection;
+  SelfTestMode testMode;
   uint16_t toValue() const {
-    return 0x0400 | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+    return 0x0400 | ((uint16_t)adcMode << 7) | ((uint16_t)testMode);
   }
 };
 using AXST = StartSelfTestGpio;
 
 class StartStatusGroupConversion : public LTC681xCommand {
  public:
-  StartStatusGroupConversion(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  StartStatusGroupConversion(AdcMode a, StatusGroupSelection s) : adcMode(a), statusSelection(s) {}
   AdcMode adcMode;
-  GpioSelection gpioSelection;
+  StatusGroupSelection statusSelection;
   uint16_t toValue() const {
-    return 0x0468 | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+    return 0x0468 | ((uint16_t)adcMode << 7) | ((uint16_t)statusSelection);
   }
 };
 using ADSTAT = StartStatusGroupConversion;
 
 class StartStatusGroupConversionWithRedundancy : public LTC681xCommand {
  public:
-  StartStatusGroupConversionWithRedundancy(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  StartStatusGroupConversionWithRedundancy(AdcMode a, StatusGroupSelection s) : adcMode(a), statusSelection(s) {}
   AdcMode adcMode;
-  GpioSelection gpioSelection;
+  StatusGroupSelection statusSelection;
   uint16_t toValue() const {
-    return 0x0408 | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+    return 0x0408 | ((uint16_t)adcMode << 7) | ((uint16_t)statusSelection);
   }
 };
 using ADSTATD = StartStatusGroupConversionWithRedundancy;
 
 class StartSelfTestStatusGroup : public LTC681xCommand {
  public:
-  StartSelfTestStatusGroup(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  StartSelfTestStatusGroup(AdcMode a, SelfTestMode t) : adcMode(a), testMode(t) {}
   AdcMode adcMode;
-  GpioSelection gpioSelection;
+  SelfTestMode testMode;
   uint16_t toValue() const {
-    return 0x040F | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+    return 0x040F | ((uint16_t)adcMode << 7) | ((uint16_t)testMode);
   }
 };
 using STATST = StartSelfTestStatusGroup;
 
 class StartCombinedCellVoltageGpioConversion : public LTC681xCommand {
  public:
+  StartCombinedCellVoltageGpioConversion(AdcMode a, bool d) : adcMode(a), dischargePermitted(d) {}
   AdcMode adcMode;
   bool dischargePermitted;
   uint16_t toValue() const {
@@ -288,6 +299,7 @@ using ADCVAX = StartCombinedCellVoltageGpioConversion;
 
 class StartCombinedCellVoltageSCConversion : public LTC681xCommand {
  public:
+  StartCombinedCellVoltageSCConversion(AdcMode a, bool d) : adcMode(a), dischargePermitted(d) {}
   AdcMode adcMode;
   bool dischargePermitted;
   uint16_t toValue() const {
