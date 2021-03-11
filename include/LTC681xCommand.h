@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 
+// XXX: Ideally this would just be stored as a uint16_t value instead
+//      of holding onto intermediate stuff. Making each of these just
+//      a function would improve performance on embedded.
+
 class LTC681xCommand {
  public:
   virtual uint16_t toValue() const = 0;
@@ -41,74 +45,122 @@ enum class GpioSelection : uint8_t {
 class WriteConfigurationGroupA : public LTC681xCommand {
   uint16_t toValue() const { return 0x0001; }
 };
+using WRCFGA = WriteConfigurationGroupA;
+
 class WriteConfigurationGroupB : public LTC681xCommand {
   uint16_t toValue() const { return 0x0024; }
 };
+using WRCFGB = WriteConfigurationGroupB;
+
 class ReadConfigurationGroupA : public LTC681xCommand {
   uint16_t toValue() const { return 0x0002; }
 };
+using RDCFGA = ReadConfigurationGroupA;
+
 class ReadConfigurationGroupB : public LTC681xCommand {
   uint16_t toValue() const { return 0x0025; }
 };
+using RDCFGB = ReadConfigurationGroupB;
 
 class ReadCellVoltageGroupA : public LTC681xCommand {
   uint16_t toValue() const { return 0x0004; }
 };
+using RDCVA = ReadCellVoltageGroupA;
+
 class ReadCellVoltageGroupB : public LTC681xCommand {
   uint16_t toValue() const { return 0x0006; }
 };
+using RDCVB = ReadCellVoltageGroupB;
+
 class ReadCellVoltageGroupC : public LTC681xCommand {
   uint16_t toValue() const { return 0x0008; }
 };
+using RDCVC = ReadCellVoltageGroupC;
+
 class ReadCellVoltageGroupD : public LTC681xCommand {
   uint16_t toValue() const { return 0x000A; }
 };
+using RDCVD = ReadCellVoltageGroupD;
+
 class ReadCellVoltageGroupE : public LTC681xCommand {
   uint16_t toValue() const { return 0x0009; }
 };
+using RDCVE = ReadCellVoltageGroupE;
+
 class ReadCellVoltageGroupF : public LTC681xCommand {
   uint16_t toValue() const { return 0x000B; }
 };
+using RDCVF = ReadCellVoltageGroupF;
 
 class ReadAuxiliaryGroupA : public LTC681xCommand {
   uint16_t toValue() const { return 0x000C; }
 };
+using RDAUXA = ReadAuxiliaryGroupA;
+
 class ReadAuxiliaryGroupB : public LTC681xCommand {
   uint16_t toValue() const { return 0x000E; }
 };
+using RDAUXB = ReadAuxiliaryGroupB;
+
 class ReadAuxiliaryGroupC : public LTC681xCommand {
   uint16_t toValue() const { return 0x000D; }
 };
+using RDAUXC = ReadAuxiliaryGroupC;
+
 class ReadAuxiliaryGroupD : public LTC681xCommand {
   uint16_t toValue() const { return 0x000F; }
 };
+using RDAUXD = ReadAuxiliaryGroupD;
 
 class ReadStatusGroupA : public LTC681xCommand {
   uint16_t toValue() const { return 0x0010; }
 };
+using RDSTATA = ReadStatusGroupA;
+
 class ReadStatusGroupB : public LTC681xCommand {
   uint16_t toValue() const { return 0x0012; }
 };
+using RDSTATB = ReadStatusGroupB;
 
 class WriteSControlGroup : public LTC681xCommand {
   uint16_t toValue() const { return 0x0016; }
 };
+using WRSCTRL = WriteSControlGroup;
+
 class WritePWMGroup : public LTC681xCommand {
   uint16_t toValue() const { return 0x0020; }
 };
+using WRPWM = WritePWMGroup;
+
+class WritePWMGroupB : public LTC681xCommand {
+  uint16_t toValue() const { return 0x001C; }
+};
+using WRPSB = WritePWMGroupB;
+
 class ReadSControlGroup : public LTC681xCommand {
   uint16_t toValue() const { return 0x0016; }
 };
+using RDSCTRL = ReadSControlGroup;
+
 class ReadPWMGroup : public LTC681xCommand {
   uint16_t toValue() const { return 0x0022; }
 };
+using RDPWM = ReadPWMGroup;
+
+class ReadPWMGroupB : public LTC681xCommand {
+  uint16_t toValue() const { return 0x001E; }
+};
+using RDPSB = ReadPWMGroupB;
 
 class StartSControlPulsing : public LTC681xCommand {
   uint16_t toValue() const { return 0x0019; }
 };
+using STSCTRL = StartSControlPulsing;
+
 class ClearSControlGroup : public LTC681xCommand {
   uint16_t toValue() const { return 0x0018; }
 };
+using CLRSCTRL = ClearSControlGroup;
 
 class StartCellVoltageADC : public LTC681xCommand {
  public:
@@ -122,6 +174,8 @@ class StartCellVoltageADC : public LTC681xCommand {
            (dischargePermitted ? 0x0010 : 0x0000) | ((uint16_t)cellSelection);
   }
 };
+using ADCV = StartCellVoltageADC;
+
 class StartOpenWireADC : public LTC681xCommand {
  public:
   AdcMode adcMode;
@@ -133,15 +187,29 @@ class StartOpenWireADC : public LTC681xCommand {
            (dischargePermitted ? 0x0010 : 0x0000) | ((uint16_t)cellSelection);
   }
 };
-class StartSelfTestConversion : public LTC681xCommand {
+using ADOW = StartOpenWireADC;
+
+class StartSelfTestCellVoltage : public LTC681xCommand {
  public:
+  StartSelfTestCellVoltage(AdcMode a, SelfTestMode t) : adcMode(a), testMode(t) {}
   AdcMode adcMode;
   SelfTestMode testMode;
   uint16_t toValue() const {
     return 0x0207 | ((uint16_t)adcMode << 7) | ((uint16_t)testMode << 5);
   }
 };
-// Lost my mind at "Start Overlap Measurement of Cell 7 Voltage"
+using CVST = StartSelfTestCellVoltage;
+
+class StartOverlapCellVoltage : public LTC681xCommand {
+ public:
+  AdcMode adcMode;
+  bool dischargePermitted;
+  uint16_t toValue() const {
+    return 0x0201 | ((uint16_t)adcMode << 7) | ((uint16_t)dischargePermitted << 4);
+  }
+};
+using ADOL = StartOverlapCellVoltage;
+
 class StartGpioADC : public LTC681xCommand {
  public:
   StartGpioADC(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
@@ -151,3 +219,119 @@ class StartGpioADC : public LTC681xCommand {
     return 0x0460 | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
   }
 };
+using ADAX = StartGpioADC;
+
+class StartGpioADCWithRedundancy : public LTC681xCommand {
+ public:
+  StartGpioADCWithRedundancy(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  AdcMode adcMode;
+  GpioSelection gpioSelection;
+  uint16_t toValue() const {
+    return 0x0400 | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+  }
+};
+using ADAXD = StartGpioADCWithRedundancy;
+
+class StartSelfTestGpio : public LTC681xCommand {
+ public:
+  StartSelfTestGpio(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  AdcMode adcMode;
+  GpioSelection gpioSelection;
+  uint16_t toValue() const {
+    return 0x0400 | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+  }
+};
+using AXST = StartSelfTestGpio;
+
+class StartStatusGroupConversion : public LTC681xCommand {
+ public:
+  StartStatusGroupConversion(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  AdcMode adcMode;
+  GpioSelection gpioSelection;
+  uint16_t toValue() const {
+    return 0x0468 | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+  }
+};
+using ADSTAT = StartStatusGroupConversion;
+
+class StartStatusGroupConversionWithRedundancy : public LTC681xCommand {
+ public:
+  StartStatusGroupConversionWithRedundancy(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  AdcMode adcMode;
+  GpioSelection gpioSelection;
+  uint16_t toValue() const {
+    return 0x0408 | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+  }
+};
+using ADSTATD = StartStatusGroupConversionWithRedundancy;
+
+class StartSelfTestStatusGroup : public LTC681xCommand {
+ public:
+  StartSelfTestStatusGroup(AdcMode a, GpioSelection g) : adcMode(a), gpioSelection(g) {}
+  AdcMode adcMode;
+  GpioSelection gpioSelection;
+  uint16_t toValue() const {
+    return 0x040F | ((uint16_t)adcMode << 7) | ((uint16_t)gpioSelection);
+  }
+};
+using STATST = StartSelfTestStatusGroup;
+
+class StartCombinedCellVoltageGpioConversion : public LTC681xCommand {
+ public:
+  AdcMode adcMode;
+  bool dischargePermitted;
+  uint16_t toValue() const {
+    return 0x086F | ((uint16_t)adcMode << 7) | ((uint16_t)dischargePermitted << 4);
+  }
+};
+using ADCVAX = StartCombinedCellVoltageGpioConversion;
+
+class StartCombinedCellVoltageSCConversion : public LTC681xCommand {
+ public:
+  AdcMode adcMode;
+  bool dischargePermitted;
+  uint16_t toValue() const {
+    return 0x086F | ((uint16_t)adcMode << 7) | ((uint16_t)dischargePermitted << 4);
+  }
+};
+using ADCVSC = StartCombinedCellVoltageSCConversion;
+
+class ClearVoltageGroups : public LTC681xCommand {
+  uint16_t toValue() const { return 0x0711; }
+};
+using CLRCELL = ClearVoltageGroups;
+
+class ClearAuxiliaryGroups : public LTC681xCommand {
+  uint16_t toValue() const { return 0x0712; }
+};
+using CLRAUX = ClearAuxiliaryGroups;
+
+class ClearStatusGroups : public LTC681xCommand {
+  uint16_t toValue() const { return 0x0713; }
+};
+using CLRSTAT = ClearStatusGroups;
+
+class PollADCStatus : public LTC681xCommand {
+  uint16_t toValue() const { return 0x0714; }
+};
+using PLADC = PollADCStatus;
+
+class DiagnoseMux : public LTC681xCommand {
+  uint16_t toValue() const { return 0x0715; }
+};
+using DIAGN = DiagnoseMux;
+
+class WriteCommGroup : public LTC681xCommand {
+  uint16_t toValue() const { return 0x0721; }
+};
+using WRCOMM = WriteCommGroup;
+
+class ReadCommGroup : public LTC681xCommand {
+  uint16_t toValue() const { return 0x0722; }
+};
+using RDCOMM = ReadCommGroup;
+
+class StartComm : public LTC681xCommand {
+  uint16_t toValue() const { return 0x0723; }
+};
+using STCOMM = StartComm;
