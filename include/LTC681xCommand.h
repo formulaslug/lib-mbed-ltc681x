@@ -347,3 +347,19 @@ class StartComm : public LTC681xCommand {
   uint16_t toValue() const { return 0x0723; }
 };
 using STCOMM = StartComm;
+
+class MuteDischarge : public LTC681xCommand {
+ public:
+  uint16_t toValue() const {
+    return 0x28;
+  }
+};
+using MUDIS = MuteDischarge;
+
+class UnmuteDischarge : public LTC681xCommand {
+ public:
+  uint16_t toValue() const {
+    return 0x29;
+  }
+};
+using UMUDIS = UnmuteDischarge;
