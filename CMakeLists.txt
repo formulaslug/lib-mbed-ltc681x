@@ -13,7 +13,7 @@ project(${APP_TARGET})
 add_library(${APP_TARGET}
     ${_HDRS}
     src/LTC681xBus.cpp
-    src/LTC681xChainBus.cpp
+    src/LTC681xChainBus.tpp
     src/LTC681xParallelBus.cpp
 )
 target_include_directories(${APP_TARGET} PUBLIC include)

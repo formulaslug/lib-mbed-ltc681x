@@ -6,7 +6,7 @@
 #include "LTC681xBus.h"
 #include "mbed.h"
 
-template<const unsigned int N_chips>
+template<unsigned int N_chips>
 LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::WakeupBus() {
   // Pulse the CS once per chip, delaying the T_wake time between
   for(uint8_t i = 0; i < N_chips; i++) {
@@ -18,7 +18,7 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::WakeupBus() {
   return LTC681xBus::LTC681xBusStatus::Ok;
 }
 
-template<const unsigned int N_chips>
+template<unsigned int N_chips>
 LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommand(LTC681xBus::BusCommand cmd) {
   //
   // In daisy chain mode, to send a command we broadcast
@@ -39,7 +39,7 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommand(LTC681xBus::B
   return LTC681xBus::LTC681xBusStatus::Ok;
 }
 
-template<const unsigned int N_chips>
+template<unsigned int N_chips>
 LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendDataCommand(LTC681xBus::BusCommand cmd, uint8_t* data) {
   //
   // In daisy chain mode, to send a command with data, we first
@@ -69,7 +69,7 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendDataCommand(LTC681xBu
   return LTC681xBus::LTC681xBusStatus::Ok;
 }
 
-template<const unsigned int N_chips>
+template<unsigned int N_chips>
 LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendReadCommand(LTC681xBus::BusCommand cmd, uint8_t* data) {
   //
   // In daisy chain mode, to send a read command, we first send the
@@ -112,7 +112,7 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendReadCommand(LTC681xBu
   return LTC681xBus::LTC681xBusStatus::Ok;
 }
 
-template <const unsigned int N_chips>
+template<unsigned int N_chips>
 LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommandAndPoll(BusCommand cmd, unsigned int timeout) {
   //
   // In daisy chain mode, to send a command we broadcast
@@ -157,7 +157,7 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommandAndPoll(BusCom
   }
 }
 
-template<const unsigned int N_chips>
+template<unsigned int N_chips>
 LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::PollAdcCompletion(BusCommand cmd, unsigned int timeout) {
   //
   // In daisy chain mode, to send a command we broadcast
