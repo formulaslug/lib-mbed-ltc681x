@@ -132,7 +132,7 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommandAndPoll(BusCom
   // Poll for ADC completion
 
   // Send initial N isoSPI clock pulses
-  for(unsigned int i = 0; i < N_chips / 8; i++) {
+  for(unsigned int i = 0; i <= (N_chips / 8); i++) {
     m_spiDriver->write(0xff);
   }
 
@@ -145,7 +145,8 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendCommandAndPoll(BusCom
       gotResponse = true;
       break;
     } else {
-      wait_us(LTC681x_POLL_DELAY);
+      // Use non-blocking wait since total conversion times are >1ms even for fastest conversion
+      ThisThread::sleep_for(1ms);
     }
   }
   m_spiDriver->deselect();
@@ -192,7 +193,8 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::PollAdcCompletion(BusComm
       gotResponse = true;
       break;
     } else {
-      wait_us(LTC681x_POLL_DELAY);
+      // Use non-blocking wait since total conversion times are >1ms even for fastest conversion
+      ThisThread::sleep_for(1ms);
     }
   }
   m_spiDriver->deselect();
