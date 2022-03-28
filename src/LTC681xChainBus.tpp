@@ -56,8 +56,9 @@ LTC681xBus::LTC681xBusStatus LTC681xChainBus<N_chips>::SendDataCommand(LTC681xBu
 
   // Create data value array
   uint8_t dataBytes[N_chips * 8];
+  // Writing on a daisy chain means the last chip in the chain gets the first data sent - reverse here to keep the rest of the software sane
   for (uint8_t chip = 0; chip < N_chips; chip++) {
-      LTC681xBus::getDataBytes(dataBytes + (chip * 8), data + (chip * 6));
+      LTC681xBus::getDataBytes(dataBytes + ((N_chips - 1 - chip) * 8), data + (chip * 6));
   }
 
   // Grab the bus and send our command
