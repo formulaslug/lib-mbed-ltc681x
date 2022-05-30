@@ -5,7 +5,7 @@
 
 #include "LTC681xBus.h"
 
-template<const unsigned int N_chips>
+template<unsigned int N_chips>
 class LTC681xChainBus : public LTC681xBus {
 public:
   LTC681xChainBus(SPI* spiDriver) : m_spiDriver(spiDriver) {};
@@ -21,3 +21,6 @@ public:
 private:
   SPI* m_spiDriver;
 };
+
+// https://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
+#include "../src/LTC681xChainBus.tpp"

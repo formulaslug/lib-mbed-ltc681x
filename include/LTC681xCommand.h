@@ -292,7 +292,7 @@ class StartCombinedCellVoltageGpioConversion : public LTC681xCommand {
   AdcMode adcMode;
   bool dischargePermitted;
   uint16_t toValue() const {
-    return 0x086F | ((uint16_t)adcMode << 7) | ((uint16_t)dischargePermitted << 4);
+    return 0x046F | ((uint16_t)adcMode << 7) | ((uint16_t)dischargePermitted << 4);
   }
 };
 using ADCVAX = StartCombinedCellVoltageGpioConversion;
@@ -347,3 +347,19 @@ class StartComm : public LTC681xCommand {
   uint16_t toValue() const { return 0x0723; }
 };
 using STCOMM = StartComm;
+
+class MuteDischarge : public LTC681xCommand {
+ public:
+  uint16_t toValue() const {
+    return 0x28;
+  }
+};
+using MUDIS = MuteDischarge;
+
+class UnmuteDischarge : public LTC681xCommand {
+ public:
+  uint16_t toValue() const {
+    return 0x29;
+  }
+};
+using UMUDIS = UnmuteDischarge;
